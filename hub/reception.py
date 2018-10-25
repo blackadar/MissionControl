@@ -72,7 +72,7 @@ def on_disconnect(client):
 def kick_idle():
     for client in CLIENTS:
         if client.idle() > IDLE_TIMEOUT:
-            logging.info("Kicked for idle: " + str(client.addrport()))
+            logging.info("Kicked " + str(client.addrport()))
             close(client, None)
 
 
@@ -109,7 +109,7 @@ def process():
 
 
 def interpret(client, command: str):
-    logging.debug(str(client.addrport()) + " sent " + command)
+    logging.debug(str(client.addrport()) + " issued " + command)
     components = command.split()
     if len(components) > 0:
         command = components[0].lower()
@@ -117,6 +117,7 @@ def interpret(client, command: str):
 
         call = COMMANDS.get(command)
         if call is None:
+            error(client)
             tell(client, "Command '" + command + "' not found.")
         else:
             call(client, args)
@@ -136,6 +137,7 @@ def hlp(client, args):
     else:
         help_text = COMMANDS_HELP.get(args[0])
         if help_text is None:
+            error(client)
             tell(client, "Command '" + args[0] + "' not found.")
         else:
             tell(client, args[0] + ": " + help_text)
@@ -250,7 +252,20 @@ def assign(client, args):
     okay(client)
 
 
-def vec(client, args):
+def update(client, args):
+    for vector in VECTORS.values():
+        vector.discover()
+    for group in GROUPS.values():
+        group.discover()
+    okay(client)
+
+
+def sys(client, args):
+    logging.info(client.addrport() + " in raw mode for " + ' '.join(map(str, args)))
+    vec(client, args, raw=True)
+
+
+def vec(client, args, raw=False):
     if len(args) < 2:
         tell(client, COMMANDS_HELP.get('tell'))
         return
@@ -264,25 +279,39 @@ def vec(client, args):
     if GROUPS.get(target) is not None:
         err = False
         for vector in GROUPS.get(target).vectors:
-            if vector.validate(service, target_args):
-                vector.tell(service, target_args)
+            if raw or vector.validate(service, target_args):
+                try:
+                    if raw:
+                        vector.send(service, target_args)
+                    else:
+                        vector.tell(service, target_args)
+                except ConnectionError as exc:
+                    err = True
+                    tell(client, str(exc))
             else:
                 err = True
                 tell(client, str(vector.name) + " does not support " + str(service) + " " +
-                     str(target_args if target_args is not None else "without arguments") + ".")
+                     str(target_args if target_args is not None else "<>") + ".")
         if err:
             error(client)
         else:
             okay(client)
     elif VECTORS.get(target) is not None:
         vector = VECTORS.get(target)
-        if vector.validate(service, target_args):
-            vector.tell(service, target_args)
-            okay(client)
+        if raw or vector.validate(service, target_args):
+            try:
+                if raw:
+                    vector.send(service, target_args)
+                else:
+                    vector.tell(service, target_args)
+                okay(client)
+            except ConnectionError as exc:
+                error(client)
+                tell(client, repr(exc))
         else:
             error(client)
             tell(client, str(target) + " does not support " + str(service) + " " +
-                 str(target_args if target_args is not None else "without arguments") + ".")
+                 str(target_args if target_args is not None else "<>") + ".")
     else:
         error(client)
         tell(client, "Entity '" + str(target) + "' does not exist.")
@@ -296,20 +325,24 @@ COMMANDS = {
     'end': close,
     'exit': close,
     'tell': vec,
+    'sys': sys,
     'list': gvlist,
     'add': add,
     'remove': remove,
     'assign': assign,
+    'update': update,
     'stop': stop,
 }
 
 COMMANDS_HELP = {
     'help': "... you've got this one.",
-    'tell': "Issue a command to a vector or group.\ntell <name/group/ip> <arguments>",
+    'tell': "Issue a command to a vector or group.\ntell <name/group> <arguments>",
+    'sys': "Issue a raw Junction system command.\nsys <name/group> <arguments>",
     'list': "Without arguments, lists all entities. With arguments, lists services.\nlist <*name/group>",
     'add': "Add a new vector or group.\nadd <'vector'/'group'> <name> <*IP Address> <*Port> <*Vector Names>",
     'remove': "Remove a vector or group.\nremove <name>",
     'assign': "Add a vector to a group.\nassign <vector> <group>",
+    'update': "Update services available for all vectors and groups.",
     'end': "Terminates Telnet session.",
     'exit': "Terminates Telnet session.",
     'stop': "Stops the reception service, closing all connections.",
