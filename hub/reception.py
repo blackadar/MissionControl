@@ -131,10 +131,8 @@ Client addressable commands
 
 def hlp(client, args):
     if len(args) == 0:
-        client.send("Available commands: ")
-        for command in COMMANDS.keys():
-            client.send(command + ", ")
-        tell(client, "\nFor details, use help <command>.")
+        tell(client, "Available commands: " + ', '.join(map(str, COMMANDS.keys())))
+        tell(client, "For details, use help <command>.")
     else:
         help_text = COMMANDS_HELP.get(args[0])
         if help_text is None:
@@ -311,7 +309,7 @@ COMMANDS_HELP = {
     'list': "Without arguments, lists all entities. With arguments, lists services.\nlist <*name/group>",
     'add': "Add a new vector or group.\nadd <'vector'/'group'> <name> <*IP Address> <*Port> <*Vector Names>",
     'remove': "Remove a vector or group.\nremove <name>",
-    'assign': "Add a vector to a group.\n assign <vector> <group>",
+    'assign': "Add a vector to a group.\nassign <vector> <group>",
     'end': "Terminates Telnet session.",
     'exit': "Terminates Telnet session.",
     'stop': "Stops the reception service, closing all connections.",

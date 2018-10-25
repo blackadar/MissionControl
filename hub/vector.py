@@ -1,6 +1,9 @@
 """
 Server representation of controllable device
 """
+import ast
+import logging
+import telnetlib
 
 
 class Vector:
@@ -10,13 +13,23 @@ class Vector:
         self.ip = ip
         self.port = port
         self.name = name
+        self.tn = telnetlib.Telnet(ip, port)
+        self.tn.read_eager()  # Ignore welcome message
         self.services = {
             'debug': ('test', 'test2'),
         }
 
     def discover(self):
-        # TODO: Send/Receive for Services
-        pass
+        self.tn.write("DISCOVER")
+        services = self.tn.read_eager()
+        """
+        Expecting services in the format of a str(dict)
+        {'service': ('opt', 'opt'), 'service2': ('opt', 'opt', 'opt')}
+        """
+        try:
+            self.services = ast.literal_eval(services.strip())
+        except ValueError:
+            logging.error("Malformed string on discovery from " + self.ip + "'" + services + "'")
 
     def validate(self, service, options):
         valid = True
@@ -30,8 +43,9 @@ class Vector:
         return valid
 
     def tell(self, service, options):
-        # TODO: Implement Telnet Send
         print("SEND ", self.name, service, options)
+        self.tn.write(service + " " + ' '.join(map(str, options)))
+        return self.tn.read_eager()
 
 
 class Group:
