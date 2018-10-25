@@ -1,12 +1,12 @@
-#Mission Control
+# Mission Control
 
-##Network Device Control Framework
+## Network Device Control Framework
 Mission Control provides a single access point Telnet server to control arrays of network devices.
 Devices may have any number of services available to control, and any number of arguments to these services.
 This tool will allow developers to easily abstract and control single devices, and large groups of devices in other applications
 without the complications of complex network interactions and lower-level programming.
 
-##Deliverable Items
+## Deliverable Items
 - Hub Package with hypervisor telnet server
 - Spoke Package with client interface
 - Demonstration of Functionality with a physical device
