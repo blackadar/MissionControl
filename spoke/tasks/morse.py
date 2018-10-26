@@ -3,7 +3,7 @@ def do(client, text):
     for word in text:
         build = build + encode(word)
     # TODO: Blink an LED
-    print(build)
+    print(client.addrport() + ": " + build)
     client.okay(client)
 
 

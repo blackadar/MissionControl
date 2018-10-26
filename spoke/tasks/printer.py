@@ -1,5 +1,5 @@
 def do(client, text):
-    print(text)
+    print(client.addrport() + ": " + ' '.join(map(str, text)))
     client.okay(client)
 
 
