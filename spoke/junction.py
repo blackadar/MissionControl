@@ -207,8 +207,8 @@ def tell_next(client, args):
 
     try:
         tn = telnetlib.Telnet(target_ip, target_port, timeout=5)
-        tn.read_until("> ".encode('ascii'))  # Ignore welcome message
-        tn.write((' '.join(map(str, target_args)) + "\r\n").encode('ascii'))
+        tn.read_until("> ".encode('utf-8'))  # Ignore welcome message
+        tn.write((' '.join(map(str, target_args)) + "\r\n").encode('utf-8'))
         tn.read_very_eager()
         tn.close()
         okay(client)

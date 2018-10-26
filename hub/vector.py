@@ -70,12 +70,12 @@ class Vector:
         self.open_telnet()
         if self.tn is not None:
             try:
-                self.tn.read_until("".encode('ascii'))  # Clear the buffer
+                self.tn.read_until("".encode('utf-8'))  # Clear the buffer
                 if options is not None:
-                    self.tn.write((service + " " + ' '.join(map(str, options)) + "\r\n").encode('ascii'))
+                    self.tn.write((service + " " + ' '.join(map(str, options)) + "\r\n").encode('utf-8'))
                 else:
-                    self.tn.write((service + "\r\n").encode('ascii'))
-                ret = str(self.tn.read_until("$junction > ".encode('ascii')).decode('ascii'))
+                    self.tn.write((service + "\r\n").encode('utf-8'))
+                ret = str(self.tn.read_until("$junction > ".encode('utf-8')).decode('utf-8'))
                 ret = ret.replace('\r\n$junction >', '')
                 ret = ret.replace('$junction >', '')
                 ret = ret.strip()
@@ -100,7 +100,7 @@ class Vector:
         if self.tn is None:
             try:
                 self.tn = telnetlib.Telnet(self.ip, self.port, timeout=5)
-                self.tn.read_until("$junction > ".encode('ascii'))  # Ignore welcome message
+                self.tn.read_until("$junction > ".encode('utf-8'))  # Ignore welcome message
                 # self.discover(in_open=True)
             except (ConnectionAbortedError, ConnectionRefusedError, ConnectionAbortedError, ConnectionError,
                     ConnectionResetError, TimeoutError, socket.timeout):
