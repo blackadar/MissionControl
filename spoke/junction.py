@@ -5,6 +5,7 @@ Functions should encompass server -> device interactions.
 Direct user interface is expected to be less frequent.
 """
 import logging
+import pickle
 
 from miniboa import TelnetServer
 
@@ -36,6 +37,21 @@ def on_disconnect(client):
     CLIENTS.remove(client)
 
 
+def read_services():
+    try:
+        with open('save/services.pkl', 'rb') as file:
+            global SERVICES
+            SERVICES = pickle.load(file)
+    except FileNotFoundError:
+        logging.info("No saved services found.")
+
+
+def save_services():
+    logging.info("Saving services to file.")
+    with open('save/vectors.pkl', 'wb') as output:
+        pickle.dump(SERVICES, output)
+
+
 def kick_idle():
     for client in CLIENTS:
         if client.idle() > IDLE_TIMEOUT:
@@ -62,6 +78,7 @@ def okay(client):
 
 def stop(client, args):
     logging.info("Client " + str(client.addrport()) + " requested stop service.")
+    save_services()
     global RUN
     RUN = False
 
@@ -183,6 +200,8 @@ if __name__ == "__main__":
         timeout=0.5)
 
     logging.info("Listening on " + str(telnet_server.port))
+
+    read_services()
 
     while RUN:
         telnet_server.poll()
