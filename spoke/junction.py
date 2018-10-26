@@ -52,7 +52,7 @@ def read_services():
 
 def save_services():
     logging.info("Saving services to file.")
-    with open('save/vectors.pkl', 'wb') as output:
+    with open('save/services.pkl', 'wb') as output:
         pickle.dump(SERVICES, output)
 
 
