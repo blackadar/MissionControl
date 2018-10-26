@@ -61,5 +61,5 @@ def encode(word):
         char = switcher.get(c, "")
         if char is not None:
             build = build + char
-    build = build + ".-.-"
+    build = build + ".-.-."
     return build
