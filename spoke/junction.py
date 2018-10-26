@@ -10,7 +10,7 @@ from miniboa import TelnetServer
 
 from spoke.tasks import morse, printer
 
-IDLE_TIMEOUT = 120
+IDLE_TIMEOUT = 30
 CLIENTS = []
 SERVICES = {}
 ALL_SERVICES = {

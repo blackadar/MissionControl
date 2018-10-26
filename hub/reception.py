@@ -192,8 +192,13 @@ def add(client, args):
             tell(client, COMMANDS_HELP.get('add'))
             return
         else:
-            VECTORS[args[1]] = Vector(str(args[2]), str(args[3]), str(args[1]))
-            okay(client)
+            try:
+                VECTORS[args[1]] = Vector(str(args[2]), str(args[3]), str(args[1]))
+                okay(client)
+            except ConnectionError:
+                error(client)
+                tell(client, "Unable to connect to " + str(args[2]) + ".")
+
     elif str(args[0]).lower() == 'group':
         err = False
         construct = Group(list(), args[1])

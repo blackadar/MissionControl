@@ -3,6 +3,7 @@ Server representation of controllable device
 """
 import ast
 import logging
+import socket
 import telnetlib
 
 
@@ -15,7 +16,24 @@ class Vector:
         self.name = name
         self.tn = None
         self.services = {}
-        self.tell("", None)
+        self.send("", None)
+
+    def __getstate__(self):
+        state = {
+            'ip': self.ip,
+            'port': self.port,
+            'name': self.name,
+            'services': self.services,
+        }
+        return state
+
+    def __setstate__(self, state):
+        self.ip = state.get('ip')
+        self.port = state.get('port')
+        self.name = state.get('name')
+        self.services = state.get('services')
+        self.tn = None
+        self.send("", None)
 
     def discover(self):
         self.open_telnet()
@@ -55,7 +73,7 @@ class Vector:
                     self.tn.write((service + " " + ' '.join(map(str, options)) + "\r\n").encode('ascii'))
                 else:
                     self.tn.write((service + "\r\n").encode('ascii'))
-                ret = str(self.tn.read_until("> ".encode('ascii')).decode('ascii'))
+                ret = str(self.tn.read_until("$junction > ".encode('ascii')).decode('ascii'))
                 ret = ret.replace('\r\n$junction >', '')
                 ret = ret.replace('$junction >', '')
                 ret = ret.strip()
@@ -78,11 +96,11 @@ class Vector:
     def open_telnet(self):
         if self.tn is None:
             try:
-                self.tn = telnetlib.Telnet(self.ip, self.port)
-                self.tn.read_until("> ".encode('ascii'))  # Ignore welcome message
+                self.tn = telnetlib.Telnet(self.ip, self.port, timeout=5)
+                self.tn.read_until("$junction > ".encode('ascii'))  # Ignore welcome message
                 self.discover()
             except (ConnectionAbortedError, ConnectionRefusedError, ConnectionAbortedError, ConnectionError,
-                    ConnectionResetError):
+                    ConnectionResetError, TimeoutError, socket.timeout):
                 logging.error("Unable to reach " + self.ip)
 
 
