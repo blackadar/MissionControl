@@ -194,6 +194,7 @@ def add(client, args):
         else:
             try:
                 VECTORS[args[1]] = Vector(str(args[2]), str(args[3]), str(args[1]))
+                logging.info("Created vector '" + args[1] + "'.")
                 okay(client)
             except ConnectionError:
                 error(client)
@@ -212,6 +213,7 @@ def add(client, args):
                     tell(client, "'" + vector_name + "' not found. Skipping...")
         construct.discover()
         GROUPS[args[1]] = construct
+        logging.info("Created group '" + args[1] + "'.")
         if err:
             error(client)
         else:
@@ -228,12 +230,14 @@ def remove(client, args):
     target = str(args[0])
     if GROUPS.get(target) is not None:
         GROUPS.pop(target, None)
+        logging.info("Removed group '" + args[0] + "'.")
         okay(client)
     elif VECTORS.get(target) is not None:
         for group in GROUPS.values():
             while VECTORS.get(target) in group.vectors:
                 group.vectors.remove(VECTORS.get(target))
                 group.discover()
+        logging.info("Removed vector '" + args[0] + "'.")
         VECTORS.pop(target, None)
         okay(client)
     else:
@@ -252,6 +256,7 @@ def assign(client, args):
         error(client)
         tell(client, "Vector or group does not exist.")
         return
+    logging.info("Assigned '" + vector + "' to '" + group + "'.")
     GROUPS.get(group).vectors.append(VECTORS.get(vector))
     GROUPS.get(group).discover()
     okay(client)
@@ -265,9 +270,15 @@ def update(client, args):
     okay(client)
 
 
+def save(client, args):
+    save_vectors()
+    save_groups()
+    okay(client)
+
+
 def sys(client, args):
-    logging.info(client.addrport() + " in raw mode for " + ' '.join(map(str, args)))
-    vec(client, args, raw=True)
+    logging.debug(client.addrport() + " sent system command " + ' '.join(map(str, args)))
+    return vec(client, args, raw=True)
 
 
 def vec(client, args, raw=False):
@@ -286,10 +297,15 @@ def vec(client, args, raw=False):
         for vector in GROUPS.get(target).vectors:
             if raw or vector.validate(service, target_args):
                 try:
+                    ret = ""
                     if raw:
-                        vector.send(service, target_args)
+                        ret = vector.send(service, target_args)
                     else:
-                        vector.tell(service, target_args)
+                        ret = vector.tell(service, target_args)
+
+                    if ret is not None and "ERROR" in ret:
+                        tell(client, vector.name + ": " + ret.replace("\r\n", " "))
+                        err = True
                 except ConnectionError as exc:
                     err = True
                     tell(client, str(exc))
@@ -305,11 +321,17 @@ def vec(client, args, raw=False):
         vector = VECTORS.get(target)
         if raw or vector.validate(service, target_args):
             try:
+                ret = ""
                 if raw:
-                    vector.send(service, target_args)
+                    ret = vector.send(service, target_args)
                 else:
-                    vector.tell(service, target_args)
-                okay(client)
+                    ret = vector.tell(service, target_args)
+
+                if ret is not None and "ERROR" in ret:
+                    error(client)
+                    tell(client, vector.name + ": " + ret.replace("\r\n", " "))
+                else:
+                    okay(client)
             except ConnectionError as exc:
                 error(client)
                 tell(client, repr(exc))
@@ -336,6 +358,7 @@ COMMANDS = {
     'remove': remove,
     'assign': assign,
     'update': update,
+    'save': save,
     'stop': stop,
 }
 
@@ -348,6 +371,7 @@ COMMANDS_HELP = {
     'remove': "Remove a vector or group.\nremove <name>",
     'assign': "Add a vector to a group.\nassign <vector> <group>",
     'update': "Update services available for all vectors and groups.",
+    'save': "Save vectors and groups to local server files for recovery after restart.",
     'end': "Terminates Telnet session.",
     'exit': "Terminates Telnet session.",
     'stop': "Stops the reception service, closing all connections.",

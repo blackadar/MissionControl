@@ -17,6 +17,7 @@ class Vector:
         self.tn = None
         self.services = {}
         self.send("", None)
+        self.discover()
 
     def __getstate__(self):
         state = {
@@ -33,10 +34,10 @@ class Vector:
         self.name = state.get('name')
         self.services = state.get('services')
         self.tn = None
-        self.send("", None)
 
-    def discover(self):
-        self.open_telnet()
+    def discover(self, in_open=False):
+        if not in_open:
+            self.open_telnet()
         try:
             services = self.send("discover", None)
         except ConnectionError:
@@ -69,6 +70,7 @@ class Vector:
         self.open_telnet()
         if self.tn is not None:
             try:
+                self.tn.read_until("".encode('ascii'))  # Clear the buffer
                 if options is not None:
                     self.tn.write((service + " " + ' '.join(map(str, options)) + "\r\n").encode('ascii'))
                 else:
@@ -98,14 +100,13 @@ class Vector:
             try:
                 self.tn = telnetlib.Telnet(self.ip, self.port, timeout=5)
                 self.tn.read_until("$junction > ".encode('ascii'))  # Ignore welcome message
-                self.discover()
+                # self.discover(in_open=True)
             except (ConnectionAbortedError, ConnectionRefusedError, ConnectionAbortedError, ConnectionError,
                     ConnectionResetError, TimeoutError, socket.timeout):
                 logging.error("Unable to reach " + self.ip)
 
 
 class Group:
-
     def __init__(self, vectors: list, name: str):
         super().__init__()
         self.vectors = vectors
@@ -115,6 +116,7 @@ class Group:
     def discover(self):
         self.services = []
         for vector in self.vectors:
+            vector.discover()
             for service, options in vector.services.items():
                 string = (service + ": " + str(options))
                 if string not in self.services:

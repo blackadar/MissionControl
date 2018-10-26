@@ -4,6 +4,7 @@ def do(client, text):
         build = build + encode(word)
     # TODO: Blink an LED
     print(build)
+    client.okay(client)
 
 
 def discover():

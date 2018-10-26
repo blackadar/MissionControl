@@ -6,6 +6,8 @@ Direct user interface is expected to be less frequent.
 """
 import logging
 import pickle
+import socket
+import telnetlib
 
 from miniboa import TelnetServer
 
@@ -29,6 +31,8 @@ Server internal operations
 def on_connect(client):
     logging.info("Opened connection to " + str(client.addrport()))
     CLIENTS.append(client)
+    client.okay = okay
+    client.error = error
     client.send(WELCOME)
 
 
@@ -166,6 +170,44 @@ def enable(client, args):
         okay(client)
 
 
+def disable(client, args):
+    if len(args) < 1:
+        tell(client, COMMANDS_HELP.get('disable'))
+        return
+    target = str(args[0])
+    if target not in SERVICES.keys():
+        error(client)
+        tell(client, "Service '" + target + "' not available to disable.")
+    else:
+        SERVICES.pop(target)
+        okay(client)
+
+
+def tell_next(client, args):
+    # Currently causes server freeze on both sides talking to reception!
+    # Disabled for now...
+    if len(args) < 3:
+        tell(client, COMMANDS_HELP.get('disable'))
+        return
+    target_ip = str(args[0])
+    target_port = str(args[1])
+    target_args = str(args[2:])
+
+    try:
+        tn = telnetlib.Telnet(target_ip, target_port, timeout=5)
+        tn.read_until("> ".encode('ascii'))  # Ignore welcome message
+        tn.write((' '.join(map(str, target_args)) + "\r\n").encode('ascii'))
+        tn.read_very_eager()
+        tn.close()
+        okay(client)
+    except (ConnectionAbortedError, ConnectionRefusedError, ConnectionAbortedError, ConnectionError,
+            ConnectionResetError, TimeoutError, socket.timeout, EOFError) as e:
+        error(client)
+        print(e)
+        tell(client, "Unable to reach " + target_ip)
+        logging.error("Unable to reach " + target_ip)
+
+
 """
 Definition of commands
 """
@@ -177,6 +219,8 @@ COMMANDS = {
     'service': service,
     'discover': discover,
     'enable': enable,
+    'disable': disable,
+    # 'tell': tell_next,
 }
 
 COMMANDS_HELP = {
@@ -186,7 +230,9 @@ COMMANDS_HELP = {
     'stop': "Stops the junction service, closing all connections.",
     'service': "Perform a service command.\nservice <name> <*action> <*args>",
     'discover': "Return a formatted list of services and actions.",
-    'enable': "Enable a service on the device.\nenable <name> <*args>"
+    'enable': "Enable a service on the device.\nenable <name> <*args>",
+    'disable': "Disable a service on the device.\ndisable <name> <*args>",
+    # 'tell': "Instruct another Mission Control component (unchecked).\ntell <IP> <PORT> <args*>"
 }
 
 if __name__ == "__main__":
