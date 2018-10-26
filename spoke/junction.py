@@ -45,7 +45,14 @@ def read_services():
     try:
         with open('save/services.pkl', 'rb') as file:
             global SERVICES
-            SERVICES = pickle.load(file)
+            service_names = pickle.load(file)
+            for service in service_names:
+                mapped = ALL_SERVICES[service]
+                if mapped is not None:
+                    SERVICES[service] = ALL_SERVICES[service]
+                else:
+                    logging.error("Saved service '" + service + "' not available.")
+            # SERVICES = pickle.load(file)
     except FileNotFoundError:
         logging.info("No saved services found.")
 
@@ -53,7 +60,7 @@ def read_services():
 def save_services():
     logging.info("Saving services to file.")
     with open('save/services.pkl', 'wb') as output:
-        pickle.dump(SERVICES, output)
+        pickle.dump(list(SERVICES.keys()), output)
 
 
 def kick_idle():
@@ -157,6 +164,11 @@ def discover(client, args):
     tell(client, str(build))
 
 
+def save(client, args):
+    save_services()
+    okay(client)
+
+
 def enable(client, args):
     if len(args) < 1:
         tell(client, COMMANDS_HELP.get('enable'))
@@ -220,6 +232,7 @@ COMMANDS = {
     'discover': discover,
     'enable': enable,
     'disable': disable,
+    'save': save,
     # 'tell': tell_next,
 }
 
@@ -232,6 +245,7 @@ COMMANDS_HELP = {
     'discover': "Return a formatted list of services and actions.",
     'enable': "Enable a service on the device.\nenable <name> <*args>",
     'disable': "Disable a service on the device.\ndisable <name> <*args>",
+    'save': "Save enabled services to local server files for recovery after restart."
     # 'tell': "Instruct another Mission Control component (unchecked).\ntell <IP> <PORT> <args*>"
 }
 
