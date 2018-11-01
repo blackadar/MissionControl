@@ -24,3 +24,7 @@ will allow us to further expand the tasks our devices can perform.
 
 ### Blocking Issues
 * None identified
+
+# Comments
+1. For the stuff last week and this week, you might want to add the person who is responsible for the item. E.g., Set up Repo (Jordan), Indentify Deliverables (team)
+2. Describe a more about the work item, not just the title
