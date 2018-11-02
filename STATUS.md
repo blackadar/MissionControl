@@ -10,21 +10,28 @@ will allow us to further expand the tasks our devices can perform.
 
 
 ### Last Week
-* Set Up Repository
-* Identify Deliverable Items
-* Made Plan
-* Implemented Telnet servers for Devices and Hypervisor
+* Set Up Repository (Team)
+    * GitHub set up with package structure
+* Identify Deliverable Items (Team)
+    * See README.md
+* Made Plan (Team)
+    * See README.md
+* Implemented Telnet servers for Devices and Hypervisor (Jordan)
+    * Implemented hub.reception, hub.vector, and spoke.junction
 
 
 ### This Week
-* Expand Command-Sets
-* Test for Edge Cases
-* Add Device Tasks
+* Expand Command-Sets (Team)
+    * Added sys, update, status, save, discover
+* Test for Edge Cases (Ryan)
+    * Found and fixed many bugs in saving and restoring state
+* Add Device Tasks (Ryan)
+    * Morse Code and Printer for debug and testing, only CLI output for now.
 
 
 ### Blocking Issues
 * None identified
 
 # Comments
-1. For the stuff last week and this week, you might want to add the person who is responsible for the item. E.g., Set up Repo (Jordan), Indentify Deliverables (team)
-2. Describe a more about the work item, not just the title
+1. For the stuff last week and this week, you might want to add the person who is responsible for the item. E.g., Set up Repo (Jordan), Indentify Deliverables (team) (COMPLETE)
+2. Describe a more about the work item, not just the title (COMPLETE)

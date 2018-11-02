@@ -234,9 +234,10 @@ def remove(client, args):
         okay(client)
     elif VECTORS.get(target) is not None:
         for group in GROUPS.values():
-            while VECTORS.get(target) in group.vectors:
-                group.vectors.remove(VECTORS.get(target))
-                group.discover()
+            for vector in group.vectors:
+                if VECTORS.get(target).name == vector.name:
+                    group.vectors.remove(vector)
+                    group.discover()
         logging.info("Removed vector '" + args[0] + "'.")
         VECTORS.pop(target, None)
         okay(client)
