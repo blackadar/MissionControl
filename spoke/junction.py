@@ -5,6 +5,7 @@ Functions should encompass server -> device interactions.
 Direct user interface is expected to be less frequent.
 """
 import logging
+import os
 import pickle
 import socket
 import telnetlib
@@ -57,8 +58,14 @@ def read_services():
         logging.info("No saved services found.")
 
 
+def verify_path():
+    if not os.path.exists('save'):
+        os.makedirs('save')
+
+
 def save_services():
     logging.info("Saving services to file.")
+    verify_path()
     with open('save/services.pkl', 'wb') as output:
         pickle.dump(list(SERVICES.keys()), output)
 

@@ -5,6 +5,7 @@ Functions should encompass client -> server interactions.
 This file should NOT handle server -> device interactions.
 """
 import logging
+import os
 import pickle
 
 from miniboa import TelnetServer
@@ -32,6 +33,11 @@ def read_vectors():
         logging.info("No saved vectors found.")
 
 
+def verify_path():
+    if not os.path.exists('save'):
+        os.makedirs('save')
+
+
 def read_groups():
     try:
         with open('save/groups.pkl', 'rb') as file:
@@ -43,12 +49,14 @@ def read_groups():
 
 def save_vectors():
     logging.info("Saving vectors to file.")
+    verify_path()
     with open('save/vectors.pkl', 'wb') as output:
         pickle.dump(VECTORS, output)
 
 
 def save_groups():
     logging.info("Saving groups to file.")
+    verify_path()
     with open('save/groups.pkl', 'wb') as output:
         pickle.dump(GROUPS, output)
 
