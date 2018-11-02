@@ -152,9 +152,17 @@ def service(client, args):
     else:
         call = SERVICES.get(target).do
         if len(args) > 1:
-            call(client, args[1:])
+            try:
+                call(client, args[1:])
+            except TypeError:
+                error(client)
+                tell(client, "Invalid number of arguments.")
         else:
-            call(client)
+            try:
+                call(client)
+            except TypeError:
+                error(client)
+                tell(client, "Invalid number of arguments.")
 
 
 def discover(client, args):
@@ -162,6 +170,24 @@ def discover(client, args):
     for svc in SERVICES.keys():
         build[svc] = SERVICES.get(svc).discover()
     tell(client, str(build))
+
+
+def status(client, args):
+    if len(args) < 1:
+        tell(client, COMMANDS_HELP.get('status'))
+        return
+    target = str(args[0])
+    target_call = SERVICES.get(target)
+
+    if target_call is not None:
+        try:
+            tell(client, target_call.status())
+        except AttributeError:
+            error(client)
+            tell(client, "'" + target + "' does not support status.")
+    else:
+        error(client)
+        tell(client, "'" + target + "' not recognized as a service.")
 
 
 def save(client, args):
@@ -230,6 +256,7 @@ COMMANDS = {
     'stop': stop,
     'service': service,
     'discover': discover,
+    'status': status,
     'enable': enable,
     'disable': disable,
     'save': save,
@@ -243,6 +270,7 @@ COMMANDS_HELP = {
     'stop': "Stops the junction service, closing all connections.",
     'service': "Perform a service command.\nservice <name> <*action> <*args>",
     'discover': "Return a formatted list of services and actions.",
+    'status': "Return the status of a service.\nstatus <service>",
     'enable': "Enable a service on the device.\nenable <name> <*args>",
     'disable': "Disable a service on the device.\ndisable <name> <*args>",
     'save': "Save enabled services to local server files for recovery after restart."

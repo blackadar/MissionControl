@@ -254,7 +254,7 @@ def assign(client, args):
 
     if GROUPS.get(group) is None or VECTORS.get(vector) is None:
         error(client)
-        tell(client, "Vector or group does not exist.")
+        tell(client, "Entity does not exist.")
         return
     logging.info("Assigned '" + vector + "' to '" + group + "'.")
     GROUPS.get(group).vectors.append(VECTORS.get(vector))
@@ -274,6 +274,50 @@ def save(client, args):
     save_vectors()
     save_groups()
     okay(client)
+
+
+def discover(client, args):
+    tell(client, "{}")
+
+
+def status(client, args):
+    if len(args) < 2:
+        tell(client, COMMANDS_HELP.get('status'))
+        return
+    target = str(args[0])
+    service = str(args[1])
+    value = {}
+    err = False
+
+    if GROUPS.get(target) is not None:
+        for vector in GROUPS.get(target).vectors:
+            try:
+                value[vector.name] = vector.send("status", (service,))
+            except ConnectionError as exc:
+                err = True
+                tell(client, str(exc))
+    elif VECTORS.get(target) is not None:
+        try:
+            value[VECTORS.get(target).name] = VECTORS.get(target).send("status", (service,))
+        except ConnectionError as exc:
+            err = True
+            tell(client, str(exc))
+    else:
+        error(client)
+        tell(client, "Entity '" + str(target) + "' does not exist.")
+        return
+
+    invalid = []
+    for vector, result in value.items():
+        if result is None or "ERROR" in result:
+            err = True
+            invalid.append(vector)
+            tell(client, vector + " could not provide status '" + service + "'.")
+    for vector in invalid:
+        value.pop(vector)
+    if err:
+        error(client)
+    tell(client, str(value))
 
 
 def sys(client, args):
@@ -358,6 +402,8 @@ COMMANDS = {
     'remove': remove,
     'assign': assign,
     'update': update,
+    'status': status,
+    'discover': discover,
     'save': save,
     'stop': stop,
 }
@@ -371,7 +417,9 @@ COMMANDS_HELP = {
     'remove': "Remove a vector or group.\nremove <name>",
     'assign': "Add a vector to a group.\nassign <vector> <group>",
     'update': "Update services available for all vectors and groups.",
+    'status': "Return a formatted list of the status of a service on vector or group of vectors.\nstatus <'vector'/'group'> <service>",
     'save': "Save vectors and groups to local server files for recovery after restart.",
+    'discover': "Formatted list of commands.",
     'end': "Terminates Telnet session.",
     'exit': "Terminates Telnet session.",
     'stop': "Stops the reception service, closing all connections.",
@@ -387,7 +435,7 @@ if __name__ == "__main__":
         on_disconnect=on_disconnect,
         timeout=0.5)
 
-    logging.info("Listening on " + str(telnet_server.port))
+    logging.info("Listening on " + str(telnet_server.address) + ":" + str(telnet_server.port))
 
     read_vectors()
     read_groups()

@@ -5,3 +5,7 @@ def do(client, text):
 
 def discover():
     return 'text'
+
+
+def status():
+    return 'READY'

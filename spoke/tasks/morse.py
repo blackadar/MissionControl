@@ -11,6 +11,11 @@ def discover():
     return 'text'
 
 
+def status():
+    # TODO: Check if the LED is ready to control
+    return "READY"
+
+
 def encode(word):
     word = word.upper()
     build = ""
