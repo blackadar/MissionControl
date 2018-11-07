@@ -426,7 +426,8 @@ COMMANDS_HELP = {
     'remove': "Remove a vector or group.\nremove <name>",
     'assign': "Add a vector to a group.\nassign <vector> <group>",
     'update': "Update services available for all vectors and groups.",
-    'status': "Return a formatted list of the status of a service on vector or group of vectors.\nstatus <'vector'/'group'> <service>",
+    'status': "Return a formatted list of the status of a service on vector or group of vectors.\nstatus "
+              "<'vector'/'group'> <service>",
     'save': "Save vectors and groups to local server files for recovery after restart.",
     'discover': "Formatted list of commands.",
     'end': "Terminates Telnet session.",
