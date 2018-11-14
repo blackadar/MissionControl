@@ -36,6 +36,7 @@ def on_connect(client):
     CLIENTS.append(client)
     client.okay = okay
     client.error = error
+    client.tell = tell
     client.send(WELCOME)
 
 

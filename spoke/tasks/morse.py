@@ -21,6 +21,7 @@ def do(client, text):
         device.tasked = False
     else:
         client.error(client)
+        client.tell(client, "Device or resource is in use.")
     # print(client.addrport() + ": " + build)
 
 

@@ -10,13 +10,22 @@ device = led.led(14)
 def do(client, text):
     text = text[0].lower()
     if text == "true":
-        device.on()
-        client.okay(client)
+        if not device.tasked:
+            device.on()
+            client.okay(client)
+        else:
+            client.error(client)
+            client.tell(client, "Device or resource is in use.")
     elif text == "false":
-        device.off()
-        client.okay(client)
+        if not device.tasked:
+            device.off()
+            client.okay(client)
+        else:
+            client.error(client)
+            client.tell(client, "Device or resource is in use.")
     else:
         client.error(client)
+        client.tell(client, "Invalid option '" + text + "'.")
 
 
 def discover():
