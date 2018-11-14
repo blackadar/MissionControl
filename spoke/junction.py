@@ -9,10 +9,11 @@ import os
 import pickle
 import socket
 import telnetlib
+import threading
 
 from miniboa import TelnetServer
 
-from spoke.tasks import morse, printer
+from spoke.tasks import morse, printer, light
 
 IDLE_TIMEOUT = 30
 CLIENTS = []
@@ -20,6 +21,7 @@ SERVICES = {}
 ALL_SERVICES = {
     'morse': morse,
     'print': printer,
+    'light': light,
 }
 RUN = True
 WELCOME = "Mission Control Junction at your service.\n$junction > "
@@ -160,13 +162,17 @@ def service(client, args):
         call = SERVICES.get(target).do
         if len(args) > 1:
             try:
-                call(client, args[1:])
+                thread = threading.Thread(target=call, args=(client, args[1:]))
+                # call(client, args[1:])
+                thread.start()
             except TypeError:
                 error(client)
                 tell(client, "Invalid number of arguments.")
         else:
             try:
-                call(client)
+                thread = threading.Thread(target=call, args=(client,))
+                # call(client)
+                thread.start()
             except TypeError:
                 error(client)
                 tell(client, "Invalid number of arguments.")

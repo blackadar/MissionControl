@@ -1,10 +1,27 @@
+"""
+Blink a device with an encoded message
+"""
+from time import sleep
+
+from spoke.devices import led
+
+device = led.led(14)
+
+time_unit = 0.25  # Seconds for a 'dot'
+
+
 def do(client, text):
     build = ""
     for word in text:
         build = build + encode(word)
-    # TODO: Blink an LED
-    print(client.addrport() + ": " + build)
-    client.okay(client)
+    if not device.tasked:
+        client.okay(client)
+        device.tasked = True
+        perform(build, device)
+        device.tasked = False
+    else:
+        client.error(client)
+    # print(client.addrport() + ": " + build)
 
 
 def discover():
@@ -12,8 +29,10 @@ def discover():
 
 
 def status():
-    # TODO: Check if the LED is ready to control
-    return "READY"
+    if device.tasked:
+        return "DEVICE BUSY"
+    else:
+        return "READY"
 
 
 def encode(word):
@@ -61,10 +80,46 @@ def encode(word):
             '!': "-.-.--\n",
             '?': "..--..\n",
             ',': "--..-- ",
-            ' ': "/ ",
+            ' ': "/",
         }
         char = switcher.get(c, "")
         if char is not None:
             build = build + char
-    build = build + ".-.-."
+    # build = build + ".-.-."
     return build
+
+
+def perform(encoded_phrase: str, dev: led.led):
+    for c in encoded_phrase:
+        switch = {
+            '.': dot,
+            '-': dash,
+            ' ': letter,
+            '/': word
+        }
+        fun = switch.get(c)
+        fun(dev)
+
+
+def dot(dev: led.led):
+    dev.on()
+    sleep(time_unit * 1)
+    dev.off()
+    sleep(time_unit * 1)
+
+
+def dash(dev: led.led):
+    dev.on()
+    sleep(time_unit * 3)
+    dev.off()
+    sleep(time_unit * 1)
+
+
+def letter(dev: led.led):
+    # dev.off()
+    sleep(time_unit * 3)
+
+
+def word(dev: led.led):
+    # dev.off()
+    sleep(time_unit * 7)
