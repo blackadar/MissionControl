@@ -2,9 +2,9 @@
 Blink a device with an encoded message
 """
 
-from spoke.devices import led
+from spoke.devices.pinout import led_14
 
-device = led.led(14)
+device = led_14
 
 
 def do(client, text):

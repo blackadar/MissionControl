@@ -3,9 +3,9 @@ Blink a device with an encoded message
 """
 from time import sleep
 
-from spoke.devices import led
+from spoke.devices.pinout import led_14
 
-device = led.led(14)
+device = led_14
 
 time_unit = 0.25  # Seconds for a 'dot'
 
@@ -90,7 +90,7 @@ def encode(word):
     return build
 
 
-def perform(encoded_phrase: str, dev: led.led):
+def perform(encoded_phrase: str, dev):
     for c in encoded_phrase:
         switch = {
             '.': dot,
@@ -102,25 +102,25 @@ def perform(encoded_phrase: str, dev: led.led):
         fun(dev)
 
 
-def dot(dev: led.led):
+def dot(dev):
     dev.on()
     sleep(time_unit * 1)
     dev.off()
     sleep(time_unit * 1)
 
 
-def dash(dev: led.led):
+def dash(dev):
     dev.on()
     sleep(time_unit * 3)
     dev.off()
     sleep(time_unit * 1)
 
 
-def letter(dev: led.led):
+def letter(dev):
     # dev.off()
     sleep(time_unit * 3)
 
 
-def word(dev: led.led):
+def word(dev):
     # dev.off()
     sleep(time_unit * 7)
