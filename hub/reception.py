@@ -7,6 +7,7 @@ This file should NOT handle server -> device interactions.
 import logging
 import os
 import pickle
+import threading
 
 from miniboa import TelnetServer
 
@@ -112,8 +113,8 @@ def stop(client, args):
 def process():
     for client in CLIENTS:
         if client.active and client.cmd_ready:
-            interpret(client, client.get_command())
-            client.send("$reception > ")
+            thread = threading.Thread(target=interpret, args=(client, client.get_command()))
+            thread.start()
 
 
 def interpret(client, command: str):
@@ -131,6 +132,7 @@ def interpret(client, command: str):
             call(client, args)
     else:
         client.send("")
+    client.send("$reception > ")
 
 
 """
@@ -245,7 +247,7 @@ def remove(client, args):
             for vector in group.vectors:
                 if VECTORS.get(target).name == vector.name:
                     group.vectors.remove(vector)
-                    group.discover()
+            group.discover()
         logging.info("Removed vector '" + args[0] + "'.")
         VECTORS.pop(target, None)
         okay(client)

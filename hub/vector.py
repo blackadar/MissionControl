@@ -104,6 +104,7 @@ class Vector:
                 self.tn.close()
                 self.tn = None
                 self.open_telnet()
+                self.send(service, options)
         else:
             raise ConnectionError("Vector '" + self.name + "' unavailable.")
 
