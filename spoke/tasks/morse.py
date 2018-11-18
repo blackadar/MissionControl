@@ -5,8 +5,7 @@ from time import sleep
 
 from spoke.devices.pinout import led_14
 
-device = led_14
-
+led = led_14
 time_unit = 0.25  # Seconds for a 'dot'
 
 
@@ -14,11 +13,11 @@ def do(client, text):
     build = ""
     for word in text:
         build = build + encode(word)
-    if not device.tasked:
+    if not led.tasked:
         client.okay(client)
-        device.tasked = True
-        perform(build, device)
-        device.tasked = False
+        led.tasked = True
+        perform(build, led)
+        led.tasked = False
     else:
         client.error(client)
         client.tell(client, "Device or resource is in use.")
@@ -30,7 +29,7 @@ def discover():
 
 
 def status():
-    if device.tasked:
+    if led.tasked:
         return "DEVICE BUSY"
     else:
         return "READY"
