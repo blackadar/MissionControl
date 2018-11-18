@@ -3,13 +3,17 @@ Blink a device with an encoded message
 """
 from time import sleep
 
-from spoke.devices.pinout import led_14
+from spoke.devices.pinout import pi_led
 
-led = led_14
+led = pi_led
 time_unit = 0.25  # Seconds for a 'dot'
 
 
 def do(client, text):
+    if led is None:
+        client.error(client)
+        client.tell(client, "Device or resource is not available.")
+        return
     build = ""
     for word in text:
         build = build + encode(word)
@@ -29,6 +33,8 @@ def discover():
 
 
 def status():
+    if led is None:
+        return "UNAVAILABLE"
     if led.tasked:
         return "DEVICE BUSY"
     else:

@@ -107,8 +107,8 @@ def stop(client, args):
 def process():
     for client in CLIENTS:
         if client.active and client.cmd_ready:
-            interpret(client, client.get_command())
-            client.send("$junction > ")
+            thread = threading.Thread(target=interpret, args=(client, client.get_command()))
+            thread.start()
 
 
 def interpret(client, command: str):
@@ -126,6 +126,7 @@ def interpret(client, command: str):
             call(client, args)
     else:
         client.send("")
+    client.send("$junction > ")
 
 
 """
@@ -163,17 +164,13 @@ def service(client, args):
         call = SERVICES.get(target).do
         if len(args) > 1:
             try:
-                thread = threading.Thread(target=call, args=(client, args[1:]))
-                # call(client, args[1:])
-                thread.start()
+                call(client, args[1:])
             except TypeError:
                 error(client)
                 tell(client, "Invalid number of arguments.")
         else:
             try:
-                thread = threading.Thread(target=call, args=(client,))
-                # call(client)
-                thread.start()
+                call(client)
             except TypeError:
                 error(client)
                 tell(client, "Invalid number of arguments.")

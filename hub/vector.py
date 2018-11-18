@@ -85,6 +85,8 @@ class Vector:
                         options = (options,)
                     self.tn.write((service + "\r\n").encode('utf-8'))
                 ret = str(self.tn.read_until("> ".encode('utf-8'), timeout=5).decode('utf-8'))
+                if ret is None or ret == "":
+                    raise ConnectionError
                 ret = ret.replace('\r\n$junction >', '')
                 ret = ret.replace('$junction >', '')
                 ret = ret.replace('\r\n$reception >', '')

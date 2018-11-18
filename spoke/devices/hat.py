@@ -82,10 +82,6 @@ class hat:
             self.green = green
             self.blue = blue
 
-        # TODO: Test edge case that this prevented
-        # if self.tasked:
-        #    return
-
         grid = uh.get_pixels()
         max_distance = 1
         for y in grid:
@@ -155,7 +151,11 @@ class hat:
         self.tasked = False
 
     def on(self):
-        self.color(255, 255, 255, write=False)
+        if self.red == self.min_val and self.green == self.min_val and self.blue == self.min_val:
+            self.red = 255
+            self.green = 255
+            self.blue = 255
+        self.color(self.red, self.green, self.blue, write=False)
 
     def off(self):
         self.color(0, 0, 0, write=False)
@@ -184,8 +184,6 @@ class hat:
         thread.start()
 
     def pulse(self, times=1):
-        if self.tasked:
-            return
         r_dist = 255 - self.red
         g_dist = 255 - self.green
         b_dist = 255 - self.blue
@@ -208,7 +206,7 @@ class hat:
         def worker():
             self.loop = True
             self.tasked = True
-            while self.loop and not self.tasked:
+            while self.loop:
                 self.off()
                 time.sleep(rate)
                 self.color(red, green, blue, write=False)

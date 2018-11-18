@@ -3,11 +3,14 @@ Control a Unicorn pHAT 'Light Bulb'
 """
 
 from spoke.devices.pinout import pi_hat
-
 hat = pi_hat
 
 
 def do(client, text):
+    if hat is None:
+        client.error(client)
+        client.tell(client, "Device or resource is not available.")
+        return
     if len(text) < 1:
         client.error(client)
         client.tell(client, "No arguments received.")
@@ -35,7 +38,11 @@ def do(client, text):
         elif target == 'pulse':
             if not check_tasked(client):
                 if len(text) > 1:
-                    times = int(text[1])
+                    try:
+                        times = int(text[1])
+                    except ValueError:
+                        client.tell(client("Invalid parameter. Using default."))
+                        times = 1
                 else:
                     times = 1
                 hat.tasked = True
@@ -52,7 +59,11 @@ def do(client, text):
                     client.error(client)
                     client.tell(client, "Blink requires a frequency argument.")
                 else:
-                    freq = int(text[1])
+                    try:
+                        freq = int(text[1])
+                    except ValueError:
+                        client.tell(client("Invalid parameter. Using default."))
+                        freq = 1
                     hat.blink(freq)
                     client.okay(client)
         elif target == 'color':
@@ -60,9 +71,14 @@ def do(client, text):
                 client.error(client)
                 client.tell(client, "Color requires 3 integers for R(ed), (G)reen, (B)lue.")
             else:
-                red = int(text[1])
-                green = int(text[2])
-                blue = int(text[3])
+                try:
+                    red = int(text[1])
+                    green = int(text[2])
+                    blue = int(text[3])
+                except ValueError:
+                    client.error(client)
+                    client.tell(client, "Color requires 3 integers for R(ed), (G)reen, (B)lue.")
+                    return
                 hat.color(red, green, blue)
                 client.okay(client)
         elif target == 'dim':
@@ -70,7 +86,12 @@ def do(client, text):
                 client.error(client)
                 client.tell(client, "Dim requires a float intensity 0.0 - 1.0.")
             else:
-                level = float(text[1])
+                try:
+                    level = float(text[1])
+                except ValueError:
+                    client.error(client)
+                    client.tell(client, "Dim requires a float intensity 0.0 - 1.0.")
+                    return
                 hat.dim(level)
                 client.okay(client)
         else:
@@ -92,7 +113,9 @@ def discover():
 
 
 def status():
+    if hat is None:
+        return "UNAVAILABLE"
     return ("R: " + str(hat.red) +
-            " G: " + str(hat.green) +
-            " B: " + str(hat.blue) +
-            " BRIGHT: " + str(hat.brightness))
+            ", G: " + str(hat.green) +
+            ", B: " + str(hat.blue) +
+            ", BRIGHT: " + str(hat.brightness))
