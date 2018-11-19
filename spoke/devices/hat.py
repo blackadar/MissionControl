@@ -27,6 +27,11 @@ class hat:
 
     def rainbow(self):
         spacing = 360.0 / 16.0
+        if self.red == self.min_val and self.green == self.min_val and self.blue == self.min_val:
+            bright = self.brightness
+            uh.brightness(0)
+            self.brightness = 0
+            self.dim(bright)
 
         def worker():
             self.loop = True
@@ -53,12 +58,16 @@ class hat:
             self.tasked = True
             while self.loop:
                 wait = randint(2, 20)
-                length = randint(1, 6)
+                length = randint(1, 3)
                 red = randint(100, 255)
                 green = randint(100, 255)
                 blue = randint(0, 255)
                 self.color(red, green, blue, write=False, length=length)
-                time.sleep(wait)
+                for i in range(wait * 100):
+                    if self.loop:
+                        time.sleep(.01)
+                    else:
+                        break
             self.color(self.red, self.green, self.blue)
             self.tasked = False
 
@@ -102,9 +111,9 @@ class hat:
                    math.ceil((abs(x[2] - blue) / max_distance) * max_movement)] for x in y] for y in grid]
 
         self.tasked = True
-        loop = True
+        color_loop = True
 
-        while loop:
+        while color_loop:
             work = False
             for x in range(8):
                 for y in range(4):
@@ -145,7 +154,7 @@ class hat:
 
                     uh.set_pixel(x, y, r, g, b)
             if not work:
-                loop = False
+                color_loop = False
             uh.show()
             time.sleep(length / resolution)
         self.tasked = False

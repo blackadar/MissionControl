@@ -95,13 +95,13 @@ class Vector:
                 logging.debug("Junction " + self.ip + ": " + ret)
                 return ret
             except (ConnectionAbortedError, ConnectionRefusedError, ConnectionAbortedError, ConnectionError,
-                    ConnectionResetError):
+                    ConnectionResetError, socket.timeout):
                 logging.info(self.ip + " closed, retrying...")
                 self.tn = None
                 self.open_telnet()
                 self.send(service, options)
             except EOFError:
-                logging.error("Junction send EOF")
+                logging.error("Junction sent EOF")
                 self.tn.read_all()
                 self.tn.close()
                 self.tn = None

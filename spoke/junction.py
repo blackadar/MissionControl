@@ -13,16 +13,20 @@ import threading
 
 from miniboa import TelnetServer
 
-from spoke.tasks import morse, printer, light
+# Modify the following with newly implemented tasks #
+from spoke.tasks import morse, printer, light, lamp
 
-IDLE_TIMEOUT = 30
-CLIENTS = []
-SERVICES = {}
 ALL_SERVICES = {
     'morse': morse,
     'print': printer,
     'light': light,
+    'lamp': lamp,
 }
+#####################################################
+
+IDLE_TIMEOUT = 30
+CLIENTS = []
+SERVICES = {}
 RUN = True
 WELCOME = "Mission Control Junction at your service.\n$junction > "
 
@@ -233,6 +237,7 @@ def disable(client, args):
 
 
 def tell_next(client, args):
+    # Intended to allow 'pivoting' through junctions
     # Currently causes server freeze on both sides talking to reception!
     # Disabled for now...
     if len(args) < 3:
@@ -271,7 +276,6 @@ COMMANDS = {
     'enable': enable,
     'disable': disable,
     'save': save,
-    # 'tell': tell_next,
 }
 
 COMMANDS_HELP = {
@@ -285,7 +289,6 @@ COMMANDS_HELP = {
     'enable': "Enable a service on the device.\nenable <name> <*args>",
     'disable': "Disable a service on the device.\ndisable <name> <*args>",
     'save': "Save enabled services to local server files for recovery after restart."
-    # 'tell': "Instruct another Mission Control component (unchecked).\ntell <IP> <PORT> <args*>"
 }
 
 if __name__ == "__main__":

@@ -3,9 +3,9 @@ Blink a device with an encoded message
 """
 from time import sleep
 
-from spoke.devices.pinout import pi_led
+from spoke.devices.pinout import pi_led_14
 
-led = pi_led
+led = pi_led_14
 time_unit = 0.25  # Seconds for a 'dot'
 
 
