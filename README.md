@@ -26,14 +26,14 @@ and clients, rather than create a standard for their entire network.
     * Accepts direct commands and commands from the hub
     * Exposes available 'tasks' to clients for control and status
 - Demonstration of Functionality with a physical device
-    * Control from digital assistant(s) (Siri, Alexa, etc)
+    * Control from digital assistant (Siri)
     * Control from Telnet commands
     * Control from an abstract GUI
 
 ## Plan
 - Week One: Hub and Spoke Telnet (COMPLETE)
 - Week Two: Command and Functionality Addition (COMPLETE)
-- Week Three: Physical Device (Task) Creation
+- Week Three: Physical Device (Task) Creation (COMPLETE)
 - Week Four: Application Demonstrations (Smart Assistant, GUI)
 - Week Five: Presentation
 
