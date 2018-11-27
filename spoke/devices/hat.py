@@ -29,8 +29,8 @@ class hat:
         spacing = 360.0 / 16.0
         if self.red == self.min_val and self.green == self.min_val and self.blue == self.min_val:
             bright = self.brightness
-            uh.brightness(0)
-            self.brightness = 0
+            uh.brightness(self.min_bright)
+            self.brightness = self.min_bright
             self.dim(bright)
 
         def worker():

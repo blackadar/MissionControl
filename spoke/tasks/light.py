@@ -9,14 +9,14 @@ device = pi_led_15
 
 def do(client, text):
     text = text[0].lower()
-    if text == "true":
+    if text == "on":
         if not device.tasked:
             device.on()
             client.okay(client)
         else:
             client.error(client)
             client.tell(client, "Device or resource is in use.")
-    elif text == "false":
+    elif text == "off":
         if not device.tasked:
             device.off()
             client.okay(client)
@@ -29,7 +29,7 @@ def do(client, text):
 
 
 def discover():
-    return 'boolean'
+    return 'on, off'
 
 
 def status():

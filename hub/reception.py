@@ -347,57 +347,43 @@ def vec(client, args, raw=False):
     else:
         target_args = None
 
-    if GROUPS.get(target) is not None:
-        err = False
-        for vector in GROUPS.get(target).vectors:
-            if raw or vector.validate(service, target_args):
-                try:
-                    ret = ""
-                    if raw:
-                        ret = vector.send(service, target_args)
-                    else:
-                        ret = vector.tell(service, target_args)
+    workers = []
 
-                    if ret is not None and "ERROR" in ret:
-                        tell(client, vector.name + ": " + ret.replace("\r\n", " "))
-                        err = True
-                except ConnectionError as exc:
-                    err = True
-                    tell(client, str(exc))
-            else:
-                err = True
-                tell(client, str(vector.name) + " does not support " + str(service) + " " +
-                     str(target_args if target_args is not None else "<>") + ".")
-        if err:
-            error(client)
-        else:
-            okay(client)
-    elif VECTORS.get(target) is not None:
-        vector = VECTORS.get(target)
+    def work():
         if raw or vector.validate(service, target_args):
+            name = vector.name
             try:
-                ret = ""
                 if raw:
                     ret = vector.send(service, target_args)
                 else:
                     ret = vector.tell(service, target_args)
 
-                if ret is not None and "ERROR" in ret:
-                    error(client)
-                    tell(client, vector.name + ": " + ret.replace("\r\n", " "))
+                if ret is not None:
+                    tell(client, name + ": " + ret.replace("\r\n", " "))
                 else:
-                    okay(client)
+                    tell(client, name + ": No response...")
             except ConnectionError as exc:
-                error(client)
-                tell(client, repr(exc))
+                tell(client, str(exc))
         else:
-            error(client)
-            tell(client, str(target) + " does not support " + str(service) + " " +
+            tell(client, str(vector.name) + " does not support " + str(service) + " " +
                  str(target_args if target_args is not None else "<>") + ".")
+
+    if GROUPS.get(target) is not None:
+        for vector in GROUPS.get(target).vectors:
+            thread = threading.Thread(target=work)
+            workers.append(thread)
+            thread.start()
+    elif VECTORS.get(target) is not None:
+        vector = VECTORS.get(target)
+        thread = threading.Thread(target=work)
+        workers.append(thread)
+        thread.start()
     else:
         error(client)
         tell(client, "Entity '" + str(target) + "' does not exist.")
 
+    for worker in workers:
+        worker.join()
 
 """
 Definition of commands
