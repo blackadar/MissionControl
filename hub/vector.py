@@ -99,14 +99,16 @@ class Vector:
                 logging.info(self.ip + " closed, retrying...")
                 self.tn = None
                 self.open_telnet()
-                self.send(service, options)
+                ret = self.send(service, options)
+                return ret
             except EOFError:
                 logging.error("Junction sent EOF")
                 self.tn.read_all()
                 self.tn.close()
                 self.tn = None
                 self.open_telnet()
-                self.send(service, options)
+                ret = self.send(service, options)
+                return ret
         else:
             raise ConnectionError("Vector '" + self.name + "' unavailable.")
 
