@@ -180,6 +180,7 @@ BRANCHES = [
 
 if __name__ == '__main__':
     root = tk.Tk()
+    root.title("Mission Control")
     root.geometry('530x260')
     canvas = tk.Canvas(root)
     app = Application(master=root)
