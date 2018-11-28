@@ -31,18 +31,31 @@ without the complications of complex network interactions and lower-level progra
 ### Features and Operations
 
 'help': List all commands and help text
+
 'tell': Issue a command to a vector or group. tell <name/group> <arguments>
+
 'sys': Issue a raw Junction system command. sys <name/group> <arguments>
+
 'list': Without arguments, lists all entities. With arguments, lists services. list <*name/group>
+
 'add': Add a new vector or group. add <'vector'/'group'> <name> <*IP Address> <*Port> <*Vector Names>
+
 'remove': Remove a vector or group. remove <name>
+
 'assign': Add a vector to a group. assign <vector> <group>
+
 'update': Update services available for all vectors and groups.
+
 'status': Return a formatted list of the status of a service on vector or group of vectors. status <'vector'/'group'> <service>
+
 'save': Save vectors and groups to local server files for recovery after restart.
+
 'discover': Formatted list of commands.
+
 'end': Terminates Telnet session.
+
 'exit': Terminates Telnet session.
+
 'stop': Stops the reception service, closing all connections.
 
 ## Project Plan and Information
