@@ -118,7 +118,7 @@ def process():
 
 
 def interpret(client, command: str):
-    logging.debug(str(client.addrport()) + " issued " + command)
+    logging.info(str(client.addrport()) + " issued " + command)
     components = command.split()
     if len(components) > 0:
         command = components[0].lower()

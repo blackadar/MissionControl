@@ -102,7 +102,7 @@ class Vector:
                 ret = self.send(service, options)
                 return ret
             except EOFError:
-                logging.error("Junction sent EOF")
+                logging.debug("Junction sent EOF")
                 self.tn.read_all()
                 self.tn.close()
                 self.tn = None
