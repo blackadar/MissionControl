@@ -99,8 +99,3 @@ and clients, rather than create a standard for their entire network.
 `Jordan Blackadar` jordan.blackadar@outlook.com
 
 `Ryan Lawton` lawtonr2@wit.edu
-
-# Comments
-1. I would like to see the breakdown of the description by breaking it down to What? Why? and How? (COMPLETE)
-2. Need to be more specific on the deliverables. E.g., What does Hub Package do? What are the Hub Package features? (COMPLETE)
-3. Adjust the plan to fit in 5 weeks schedule including presentation and wrap-up (COMPLETE)
